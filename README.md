@@ -1,4 +1,4 @@
-# Ciao 💬 — social app (React + Express + MongoDB)
+# Ciao — social app (React + Express + MongoDB)
 
 ## Run it
 ```bash
