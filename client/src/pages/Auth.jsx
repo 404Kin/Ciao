@@ -24,7 +24,7 @@ function Shell({ title, subtitle, children, footer }) {
             <LogoMark size={80} className="relative drop-shadow-2xl" />
           </div>
           <span className="font-script text-6xl font-bold mt-3 leading-none drop-shadow-lg">Ciao</span>
-          <p className="text-white text-sm mt-3 px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">Share moments. Play your soundtrack.</p>
+          
         </div>
 
         <div className="rounded-[28px] border border-white/20 bg-black/40 backdrop-blur-2xl shadow-2xl p-6 sm:p-7">
@@ -75,7 +75,7 @@ export function Login() {
   };
 
   return (
-    <Shell title="Welcome back 👋" subtitle="Log in to continue." footer={<>New here? <Link to="/register" className={linkCls}>Create an account</Link></>}>
+    <Shell title="Welcome back" subtitle="Log in to continue." footer={<>New here? <Link to="/register" className={linkCls}>Create an account</Link></>}>
       <form onSubmit={submit} className="space-y-3">
         <input className={INPUT} placeholder="Email or username" value={identifier} onChange={(e) => setIdentifier(e.target.value)} autoComplete="username" required />
         <PasswordField value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
@@ -100,7 +100,7 @@ export function Register() {
     setBusy(true);
     try {
       await register({ name: f.name, username: f.username, email: f.email, password: f.password, avatar: f.avatar });
-      toast.success('Welcome to Ciao! 🎉 Add a profile photo in Settings.');
+      toast.success('Welcome to Ciao! Add a profile photo in Settings.');
       navigate('/');
     } catch (err) {
       toast.error(errMsg(err));
@@ -108,7 +108,7 @@ export function Register() {
   };
 
   return (
-    <Shell title="Join Ciao ✨" subtitle="Create your account in a few seconds." footer={<>Already have an account? <Link to="/login" className={linkCls}>Log in</Link></>}>
+    <Shell  footer={<>Already have an account? <Link to="/login" className={linkCls}>Log in</Link></>}>
       <form onSubmit={submit} className="space-y-3">
         {AVATAR_PRESETS.length > 0 && (
           <div>

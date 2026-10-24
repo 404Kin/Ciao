@@ -81,7 +81,7 @@ export default function Profile() {
         <div className="mt-3">
           <h2 className="text-xl font-extrabold leading-tight">{profile.name}</h2>
           <p className="text-muted text-sm">@{profile.username}</p>
-          {profile.status && <p className="chip mt-2">💭 {profile.status}</p>}
+          {profile.status && <p className="chip mt-2">{profile.status}</p>}
           {profile.bio && <p className="mt-3 whitespace-pre-wrap break-words">{profile.bio}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-muted">
             {profile.location && <span className="flex items-center gap-1"><MapPin size={14} />{profile.location}</span>}
