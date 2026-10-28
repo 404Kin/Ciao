@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Ciao — A Cozy Social Media Platform</h1>
+  <h1>Ciao — A Social Media Platform</h1>
   <p>A full-stack, mood-based social media application built with React, Node.js, Express, and MongoDB.</p>
   
   ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
