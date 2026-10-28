@@ -56,5 +56,5 @@ Make sure you have **Node.js** and **MongoDB** installed on your system (or a Mo
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/ciao-social-app.git
-cd ciao-social-app
+git clone [https://github.com/your-username/ciao-social-app.git](https://github.com/404Kin/Ciao.git)
+cd Ciao
