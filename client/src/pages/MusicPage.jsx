@@ -58,7 +58,7 @@ export default function MusicPage() {
     >
       {dragging && (
         <div className="absolute inset-2 z-20 rounded-3xl border-2 border-dashed border-accent bg-accent/15 backdrop-blur-sm grid place-items-center pointer-events-none">
-          <p className="font-bold text-accent text-lg">Drop songs to add them 🎵</p>
+          <p className="font-bold text-accent text-lg">Drop songs to add them</p>
         </div>
       )}
       <PageHeader title="Music" subtitle="Your shared library"
@@ -68,7 +68,7 @@ export default function MusicPage() {
         <div className="rounded-3xl gradient-accent p-5 text-white flex items-center gap-4 shadow-glow">
           <div className="w-16 h-16 rounded-2xl bg-white/20 grid place-items-center shrink-0"><MusicIcon size={30} /></div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-extrabold text-xl">Ciao Music</h2>
+            <h2 className="font-bold text-xl">Ciao Music</h2>
             <p className="text-white/80 text-sm">{songs ? `${songs.length} song${songs.length === 1 ? '' : 's'}${totalTime ? ` · ${Math.round(totalTime / 60)} min` : ''}` : 'Loading…'}</p>
           </div>
           <div className="flex gap-2">

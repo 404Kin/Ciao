@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2, X, ArrowLeft } from 'lucide-react';
+import { Loader2, X, ArrowLeft, Bell, Bookmark, Music, Heart, FileText, Image as ImageIcon, Search, UserX, Link2, Layers, WifiOff, Flame, Sparkles, Users, Lock, Inbox } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mediaUrl } from '../utils/api.js';
 import { gradientFor } from '../utils/format.js';
@@ -35,10 +35,22 @@ export const Spinner = ({ size = 20, className = '' }) => (
   <Loader2 size={size} className={`spin text-accent ${className}`} />
 );
 
-export function EmptyState({ emoji = '🌸', title, text, action }) {
+const EMPTY_ICONS = {
+  bell: Bell, bookmark: Bookmark, music: Music, heart: Heart, file: FileText, image: ImageIcon, search: Search,
+  user: UserX, link: Link2, layers: Layers, wifi: WifiOff, flame: Flame, sparkles: Sparkles, users: Users, lock: Lock, inbox: Inbox,
+};
+
+// Neutral circular icon, not an emoji. Old callers that still pass `emoji` get a sensible icon.
+const EMOJI_TO_ICON = {
+  '🔔': 'bell', '🔖': 'bookmark', '🎧': 'music', '💜': 'heart', '📝': 'file', '📷': 'image', '🔎': 'search',
+  '🫥': 'user', '🙈': 'user', '🔗': 'link', '📚': 'layers', '📡': 'wifi', '🌱': 'flame', '✨': 'sparkles', '🫶': 'users', '🔒': 'lock',
+};
+
+export function EmptyState({ icon, emoji, title, text, action }) {
+  const Icon = EMPTY_ICONS[icon || EMOJI_TO_ICON[emoji] || 'inbox'] || Inbox;
   return (
-    <div className="card p-10 text-center animate-rise">
-      <div className="text-5xl mb-3">{emoji}</div>
+    <div className="py-14 px-6 text-center">
+      <div className="w-16 h-16 rounded-full border-2 border-ink/80 grid place-items-center mx-auto mb-4"><Icon size={28} strokeWidth={1.6} /></div>
       <h3 className="font-bold text-lg">{title}</h3>
       {text && <p className="text-sm text-muted mt-1 max-w-sm mx-auto">{text}</p>}
       {action && <div className="mt-5">{action}</div>}
@@ -75,7 +87,7 @@ export function PageHeader({ title, subtitle, back = false, right }) {
           </button>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="font-extrabold text-lg leading-tight truncate">{title}</h1>
+          <h1 className="font-bold text-lg leading-tight truncate">{title}</h1>
           {subtitle && <p className="text-xs text-muted truncate -mt-0.5">{subtitle}</p>}
         </div>
         {right}
@@ -105,7 +117,7 @@ export function Modal({ open, onClose, title, children, size = 'md', footer }) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-[rise_.15s_ease-out]" onClick={onClose} />
       <div
         className={`relative w-full ${width} max-h-[92vh] flex flex-col bg-surface border border-line shadow-card
-                    rounded-t-3xl sm:rounded-3xl animate-rise safe-bottom`}
+                    rounded-t-2xl sm:rounded-2xl animate-rise safe-bottom`}
       >
         <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-line">
           <h2 className="font-bold text-base">{title}</h2>

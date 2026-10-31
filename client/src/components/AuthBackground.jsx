@@ -121,7 +121,7 @@ export function BackgroundPicker({ state }) {
     try {
       const url = await toDataUrl(f);
       if (!setCustomImage(url)) toast.error('That picture is too big to save in this browser');
-      else toast.success('Background changed ✨');
+      else toast.success('Background changed');
     } catch { toast.error('Could not read that image'); }
   };
 

@@ -76,7 +76,7 @@ function NowPlayingSheet() {
         <div className="space-y-5">
           <div className="flex flex-col items-center text-center">
             <SongCover song={current} size={168} rounded="rounded-3xl" className={`shadow-glow ${playing ? '' : 'opacity-90'}`} />
-            <h3 className="font-extrabold text-xl mt-4 truncate max-w-full">{current.title}</h3>
+            <h3 className="font-bold text-xl mt-4 truncate max-w-full">{current.title}</h3>
             <p className="text-sm text-muted">{current.artist}</p>
           </div>
           <div>
@@ -353,7 +353,7 @@ export function UploadSongModal({ open, onClose, onUploaded, initialFiles }) {
     }
     setBusy(false);
     if (!failed) {
-      toast.success(todo.length === 1 ? 'Song added 🎵' : `${todo.length} songs added 🎵`);
+      toast.success(todo.length === 1 ? 'Song added' : `${todo.length} songs added`);
       onClose();
     } else {
       toast.error(`${failed} song${failed > 1 ? 's' : ''} failed — you can retry`);
@@ -372,7 +372,7 @@ export function UploadSongModal({ open, onClose, onUploaded, initialFiles }) {
         return;
       }
       const { data } = await api.post('/songs/link', { url, title: link.title, artist: link.artist, duration });
-      toast.success('Song added from link 🔗');
+      toast.success('Song added from link');
       onUploaded?.(data.song);
       onClose();
     } catch (err) {

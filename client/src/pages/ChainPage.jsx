@@ -41,7 +41,7 @@ export default function ChainPage() {
     try {
       const { data } = await api.post(`/chains/${id}/entries`, fd);
       setChain(data.chain); setText(''); setFile(null);
-      toast.success(data.chain.status === 'done' ? 'Chain complete! 🎉 The collage is ready' : 'Your piece was added 🔗');
+      toast.success(data.chain.status === 'done' ? 'Chain complete. The collage is ready' : 'Your piece was added');
     } catch (err) { toast.error(errMsg(err)); } finally { setBusy(''); }
   };
 
@@ -49,7 +49,7 @@ export default function ChainPage() {
     const ok = await confirm({ title: 'Finish the chain now?', message: pending.length ? `${pending.length} tagged ${pending.length === 1 ? 'person hasn’t' : 'people haven’t'} added their piece yet. They won’t be able to after this.` : 'Everyone has added their piece.', confirmText: 'Finish' });
     if (!ok) return;
     setBusy('finish');
-    try { const { data } = await api.post(`/chains/${id}/finish`); setChain(data.chain); toast.success('Chain finished 🎉'); }
+    try { const { data } = await api.post(`/chains/${id}/finish`); setChain(data.chain); toast.success('Chain finished'); }
     catch (err) { toast.error(errMsg(err)); } finally { setBusy(''); }
   };
 
@@ -66,11 +66,11 @@ export default function ChainPage() {
       const blob = await renderCollageBlob(chain);
       const fd = new FormData();
       fd.append('media', new File([blob], 'chain-collage.jpg', { type: 'image/jpeg' }));
-      fd.append('text', `🔗 ${chain.title} — a collage story by ${chain.entries.length} friends ✨ #chain`);
+      fd.append('text', `${chain.title}: a collage story by ${chain.entries.length} friends #chain`);
       fd.append('mood', 'happy');
       const { data } = await api.post('/posts', fd);
       window.dispatchEvent(new CustomEvent('ciao:new-post', { detail: data.post }));
-      toast.success('Shared to your feed 🎉');
+      toast.success('Shared to your feed');
       navigate('/');
     } catch (err) { toast.error(errMsg(err) || 'Could not build the collage'); } finally { setBusy(''); }
   };
@@ -94,7 +94,7 @@ export default function ChainPage() {
         {/* progress */}
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-bold">{done ? '🎉 Collage story' : `${chain.entries.length - 1} of ${chain.invited.length} added`}</p>
+            <p className="font-bold">{done ? 'Collage story' : `${chain.entries.length - 1} of ${chain.invited.length} added`}</p>
             <span className={`chip ${done ? '!bg-ok/15 !text-ok !border-ok/40' : ''}`}>{done ? 'Completed' : 'Open'}</span>
           </div>
           {!done && <div className="h-2 rounded-full bg-surface2 overflow-hidden mt-3"><div className="h-full gradient-accent transition-all" style={{ width: `${((chain.entries.length - 1) / chain.invited.length) * 100}%` }} /></div>}
@@ -110,7 +110,7 @@ export default function ChainPage() {
         {/* my turn */}
         {chain.myTurn && (
           <div className="card p-4 border-accent/50 space-y-3">
-            <h3 className="font-bold">✨ It’s your turn</h3>
+            <h3 className="font-bold">It’s your turn</h3>
             <p className="text-xs text-muted -mt-2">Add one photo or one line to the story.</p>
             <PiecePicker text={text} setText={setText} file={file} setFile={setFile} placeholder="Continue the story…" />
             <div className="flex justify-end">

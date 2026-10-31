@@ -4,6 +4,7 @@ import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Song from '../models/Song.js';
 import Notification from '../models/Notification.js';
+import Report, { REPORT_REASONS } from '../models/Report.js';
 import { verifyToken as auth } from '../middleware/auth.js';
 import { handleUpload, uploadMedia, removeUpload } from '../middleware/upload.js';
 import { notify, unnotify } from '../utils/notify.js';
@@ -226,6 +227,7 @@ router.delete('/:id', auth, async (req, res) => {
 
     await Comment.deleteMany({ post: post._id });
     await Notification.deleteMany({ post: post._id });
+    await Report.deleteMany({ post: post._id });
     await User.updateMany({ saved: post._id }, { $pull: { saved: post._id } });
     await Post.deleteOne({ _id: post._id });
 
@@ -306,13 +308,24 @@ router.post('/:id/report', auth, async (req, res) => {
       return res.status(400).json({ error: "You can't report your own post" });
     }
 
-    if (!post.reports.some((id) => String(id) === req.userId)) {
-      post.reports.push(req.userId);
-      post.reportCount = post.reports.length;
-      if (post.reportCount >= 3) post.hidden = true;
-      await post.save();
+    const reason = REPORT_REASONS.includes(req.body?.reason) ? req.body.reason : 'other';
+    const details = String(req.body?.details || '').trim().slice(0, 300);
+    try {
+      await Report.create({ post: post._id, reporter: req.userId, reason, details });
+    } catch (err) {
+      if (err.code === 11000) return res.status(400).json({ error: 'You have already reported this post' });
+      throw err;
     }
-    res.json({ message: 'Thanks — we will review this post', reportCount: post.reportCount });
+
+    // enough independent reports hide the post until an admin has looked at it
+    const open = await Report.countDocuments({ post: post._id, status: 'open' });
+    post.reportCount = open;
+    if (open >= 3 && !post.hidden) {
+      post.hidden = true;
+      post.hiddenReason = 'reports';
+    }
+    await post.save();
+    res.json({ message: 'Thanks. Our team will review this post.', reportCount: open });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

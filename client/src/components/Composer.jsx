@@ -75,7 +75,7 @@ export default function Composer({ onPosted, autoFocus = false, compact = false 
       });
       files.forEach((f) => URL.revokeObjectURL(f.url));
       setText(''); setFiles([]); setSong(null); setMood('calm');
-      toast.success('Posted! ✨');
+      toast.success('Posted');
       onPosted?.(data.post);
     } catch (err) {
       toast.error(errMsg(err));

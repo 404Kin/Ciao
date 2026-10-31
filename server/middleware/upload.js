@@ -47,13 +47,6 @@ export const uploadAvatar = multer({
     isImage(file) ? cb(null, true) : cb(new Error('Only image files are allowed')),
 }).single('avatar');
 
-export const uploadCover = multer({
-  storage: storageFor('avatars'),
-  limits: { fileSize: 12 * 1024 * 1024 },
-  fileFilter: (req, file, cb) =>
-    isImage(file) ? cb(null, true) : cb(new Error('Only image files are allowed')),
-}).single('cover');
-
 // Songs: one audio file + optional cover image
 export const uploadSong = multer({
   storage: storageFor('songs'),

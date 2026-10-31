@@ -114,7 +114,7 @@ export default function CommentsSection({ postId, onCount, autoFocus = false }) 
       {comments === null ? (
         <div className="py-4 grid place-items-center"><Spinner /></div>
       ) : top.length === 0 ? (
-        <p className="text-sm text-muted text-center py-3">No comments yet — be the first to say something 💬</p>
+        <p className="text-sm text-muted text-center py-3">No comments yet. Start the conversation.</p>
       ) : (
         <div className="space-y-3.5 mb-3">
           {top.map((c) => (

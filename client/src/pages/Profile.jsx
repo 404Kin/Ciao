@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { MapPin, Link2, Calendar, Settings as Cog, Image as ImageIcon, FileText, Bookmark } from 'lucide-react';
-import api, { errMsg, mediaUrl } from '../utils/api.js';
+import { MapPin, Link2, Calendar, LayoutGrid, List, Bookmark } from 'lucide-react';
+import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Avatar, PageHeader, Tabs, EmptyState, Modal, Spinner, PostSkeleton } from '../components/ui.jsx';
 import FollowButton from '../components/FollowButton.jsx';
 import UserRow from '../components/UserRow.jsx';
 import PostFeed, { usePosts } from '../components/PostFeed.jsx';
-import { gradientFor, compact } from '../utils/format.js';
+import PostGrid from '../components/PostGrid.jsx';
+import { compact } from '../utils/format.js';
+import { mediaUrl } from '../utils/api.js';
 
 function ConnectionsModal({ username, kind, onClose }) {
   const [list, setList] = useState(null);
@@ -25,88 +27,107 @@ function ConnectionsModal({ username, kind, onClose }) {
   );
 }
 
+function Stat({ n, label, onClick }) {
+  const inner = <><b className="font-semibold">{compact(n)}</b> <span className="text-muted sm:text-ink">{label}</span></>;
+  return onClick
+    ? <button onClick={onClick} className="hover:opacity-70 text-center sm:text-left">{inner}</button>
+    : <span className="text-center sm:text-left">{inner}</span>;
+}
+
 export default function Profile() {
   const { username } = useParams();
   const { user: me } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(undefined);
-  const [tab, setTab] = useState('posts');
+  const [tab, setTab] = useState('grid');
   const [conn, setConn] = useState(null);
   const [viewer, setViewer] = useState(false);
 
   useEffect(() => {
     setProfile(undefined);
-    setTab('posts');
-    api.get(`/users/${username}`).then((r) => setProfile(r.data)).catch((e) => setProfile(e.response?.status === 404 ? null : null));
+    setTab('grid');
+    api.get(`/users/${username}`).then((r) => setProfile(r.data)).catch(() => setProfile(null));
   }, [username]);
 
-  const posts = usePosts({ scope: tab === 'media' ? 'media' : 'all', user: username });
-
-  // keep the post counter in sync when posts are created/deleted
-  useEffect(() => {
-    if (profile) setProfile((p) => (p ? { ...p, postsCount: tab === 'posts' ? posts.posts.length : p.postsCount } : p));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [posts.posts.length]);
+  const posts = usePosts({ scope: 'all', user: username });
 
   if (profile === undefined) return <><PageHeader back title="Profile" /><div className="p-4"><PostSkeleton /></div></>;
-  if (profile === null) return <><PageHeader back title="Profile" /><div className="p-4"><EmptyState emoji="🫥" title="User not found" text={`There is no @${username} on Ciao.`} /></div></>;
+  if (profile === null) return <><PageHeader back title="Profile" /><div className="p-4"><EmptyState icon="user" title="User not found" text={`There is no @${username} on Ciao.`} /></div></>;
 
   const isMe = profile.isMe || me?.username === profile.username;
   const joined = new Date(profile.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const postsCount = posts.loading ? profile.postsCount : posts.posts.length + (posts.hasMore ? 0 : 0) || profile.postsCount;
+
+  const actions = isMe ? (
+    <Link to="/settings" className="btn-ghost btn-sm">Edit profile</Link>
+  ) : (
+    <FollowButton userId={profile._id} initial={profile.isFollowing}
+      onChange={(d) => setProfile((p) => ({ ...p, isFollowing: d.following, followersCount: d.followersCount }))} />
+  );
 
   return (
     <>
-      <PageHeader back title={profile.name} subtitle={`${compact(profile.postsCount)} posts`} />
+      <PageHeader back title={profile.username} />
 
-      {/* cover */}
-      <div className="h-36 sm:h-48 w-full relative" style={profile.cover ? undefined : { background: gradientFor(profile.username) }}>
-        {profile.cover && <img src={mediaUrl(profile.cover)} alt="" className="w-full h-full object-cover" />}
-      </div>
-
-      <div className="px-4">
-        <div className="relative z-10 flex items-end justify-between -mt-12 sm:-mt-14">
-          <button onClick={() => (profile.avatarUrl ? setViewer(true) : null)} className="rounded-full border-4 border-bg bg-bg" aria-label="View profile photo">
-            <Avatar user={profile} size={104} />
+      <div className="px-4 pt-6">
+        <div className="flex items-center gap-5 sm:gap-10">
+          <button onClick={() => (profile.avatarUrl ? setViewer(true) : null)} className="shrink-0 rounded-full" aria-label="View profile photo">
+            <Avatar user={profile} size={88} className="sm:!w-[128px] sm:!h-[128px] sm:!min-w-[128px]" />
           </button>
-          <div className="pb-1 flex gap-2">
-            {isMe ? (
-              <Link to="/settings" className="btn-ghost btn-sm"><Cog size={14} /> Edit profile</Link>
-            ) : (
-              <FollowButton userId={profile._id} initial={profile.isFollowing} size="md"
-                onChange={(d) => setProfile((p) => ({ ...p, isFollowing: d.following, followersCount: d.followersCount }))} />
-            )}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h2 className="text-xl font-medium truncate">{profile.username}</h2>
+              {actions}
+            </div>
+            <div className="hidden sm:flex gap-8 mt-4 text-[15px]">
+              <Stat n={postsCount} label="posts" />
+              <Stat n={profile.followersCount} label="followers" onClick={() => setConn('followers')} />
+              <Stat n={profile.followingCount} label="following" onClick={() => setConn('following')} />
+            </div>
           </div>
         </div>
 
-        <div className="mt-3">
-          <h2 className="text-xl font-extrabold leading-tight">{profile.name}</h2>
-          <p className="text-muted text-sm">@{profile.username}</p>
-          {profile.status && <p className="chip mt-2">{profile.status}</p>}
-          {profile.bio && <p className="mt-3 whitespace-pre-wrap break-words">{profile.bio}</p>}
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm text-muted">
-            {profile.location && <span className="flex items-center gap-1"><MapPin size={14} />{profile.location}</span>}
-            {profile.website && <a href={profile.website} target="_blank" rel="noreferrer noopener" className="flex items-center gap-1 text-accent hover:underline"><Link2 size={14} />{profile.website.replace(/^https?:\/\//, '')}</a>}
-            <span className="flex items-center gap-1"><Calendar size={14} />Joined {joined}</span>
+        <div className="mt-4 text-sm">
+          <p className="font-semibold">{profile.name}</p>
+          {profile.status && <p className="text-muted">{profile.status}</p>}
+          {profile.bio && <p className="mt-1 whitespace-pre-wrap break-words">{profile.bio}</p>}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-muted text-[13px]">
+            {profile.location && <span className="flex items-center gap-1"><MapPin size={13} />{profile.location}</span>}
+            {profile.website && <a href={profile.website} target="_blank" rel="noreferrer noopener" className="flex items-center gap-1 text-accent hover:underline"><Link2 size={13} />{profile.website.replace(/^https?:\/\//, '')}</a>}
+            <span className="flex items-center gap-1"><Calendar size={13} />Joined {joined}</span>
           </div>
-          <div className="flex gap-5 mt-3 text-sm">
-            <button onClick={() => setConn('following')} className="hover:underline"><b>{compact(profile.followingCount)}</b> <span className="text-muted">Following</span></button>
-            <button onClick={() => setConn('followers')} className="hover:underline"><b>{compact(profile.followersCount)}</b> <span className="text-muted">Followers</span></button>
-            {isMe && <Link to="/saved" className="hover:underline flex items-center gap-1 text-muted"><Bookmark size={14} /> Saved</Link>}
-          </div>
+        </div>
+
+        <div className="sm:hidden grid grid-cols-3 border-y border-line mt-4 py-3 text-sm">
+          <Stat n={postsCount} label="posts" />
+          <Stat n={profile.followersCount} label="followers" onClick={() => setConn('followers')} />
+          <Stat n={profile.followingCount} label="following" onClick={() => setConn('following')} />
         </div>
       </div>
 
-      <Tabs className="mt-4" value={tab} onChange={setTab} tabs={[{ id: 'posts', label: 'Posts', icon: FileText }, { id: 'media', label: 'Photos & videos', icon: ImageIcon }]} />
-      <div className="p-4">
-        <PostFeed state={posts} empty={<EmptyState emoji={tab === 'media' ? '📷' : '📝'} title={tab === 'media' ? 'No photos or videos yet' : 'No posts yet'}
-          text={isMe ? 'Share something from the Home page!' : `${profile.name} hasn't posted yet.`}
-          action={isMe && <button className="btn-primary btn-sm" onClick={() => navigate('/')}>Create a post</button>} />} />
-      </div>
+      <Tabs className="mt-2 sm:mt-6" value={tab} onChange={setTab}
+        tabs={[{ id: 'grid', label: 'Posts', icon: LayoutGrid }, { id: 'list', label: 'Timeline', icon: List }, ...(isMe ? [{ id: 'saved', label: 'Saved', icon: Bookmark }] : [])]} />
+
+      {tab === 'saved' ? (
+        <div className="p-6 text-center">
+          <Link to="/saved" className="btn-primary btn-sm">Open saved posts</Link>
+        </div>
+      ) : tab === 'grid' ? (
+        <div className="px-0.5 sm:px-0 pt-1">
+          <PostGrid state={posts} empty={<EmptyState icon="image" title={isMe ? 'Share your first post' : 'No posts yet'}
+            text={isMe ? 'Photos, videos and thoughts you share will show up here.' : `${profile.name} hasn't posted yet.`}
+            action={isMe && <button className="btn-primary btn-sm" onClick={() => navigate('/')}>Create a post</button>} />} />
+        </div>
+      ) : (
+        <div className="p-4">
+          <PostFeed state={posts} empty={<EmptyState icon="file" title="No posts yet" />} />
+        </div>
+      )}
 
       <ConnectionsModal username={profile.username} kind={conn} onClose={() => setConn(null)} />
       {viewer && (
         <div className="fixed inset-0 z-[95] bg-black/90 grid place-items-center p-4" onClick={() => setViewer(false)}>
-          <img src={mediaUrl(profile.avatarUrl)} alt="" className="max-w-full max-h-[85vh] rounded-3xl object-contain" />
+          <img src={mediaUrl(profile.avatarUrl)} alt="" className="max-w-full max-h-[85vh] rounded-full object-cover aspect-square" />
         </div>
       )}
     </>

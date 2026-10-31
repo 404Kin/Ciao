@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import api, { errMsg, mediaUrl } from '../utils/api.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import ReportDialog from './ReportDialog.jsx';
 import { MOODS, REACTIONS, reactionOf, timeAgo, compact } from '../utils/format.js';
 import { Avatar, Menu, MenuItem, Lightbox, useConfirm } from './ui.jsx';
 import { PostSong } from './music.jsx';
@@ -60,6 +62,8 @@ function MediaGrid({ media, onOpen }) {
 
 export default function PostCard({ post, onChange, defaultOpenComments = false }) {
   const toast = useToast();
+  const { user } = useAuth();
+  const [reportOpen, setReportOpen] = useState(false);
   const confirm = useConfirm();
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(defaultOpenComments);
@@ -161,11 +165,14 @@ export default function PostCard({ post, onChange, defaultOpenComments = false }
     } catch (err) { toast.error(errMsg(err)); }
   };
 
-  const report = async () => {
-    const ok = await confirm({ title: 'Report this post?', message: 'Posts with several reports are hidden automatically.', confirmText: 'Report', danger: true });
+  const adminRemove = async () => {
+    const ok = await confirm({ title: 'Remove this post?', message: 'The author is notified that it broke the guidelines. This is recorded in the admin log.', confirmText: 'Remove', danger: true });
     if (!ok) return;
-    try { const { data } = await api.post(`/posts/${post._id}/report`); toast.success(data.message); }
-    catch (err) { toast.error(errMsg(err)); }
+    try {
+      await api.delete(`/admin/posts/${post._id}`, { data: { reason: 'It broke the community guidelines.' } });
+      onChange(null);
+      toast.success('Post removed');
+    } catch (err) { toast.error(errMsg(err)); }
   };
 
   const topReactions = Object.entries(post.reactionCounts || {}).sort((a, b) => b[1] - a[1]).slice(0, 3);
@@ -193,7 +200,10 @@ export default function PostCard({ post, onChange, defaultOpenComments = false }
               <MenuItem icon={Trash2} danger onClick={remove}>Delete post</MenuItem>
             </>
           ) : (
-            <MenuItem icon={Flag} danger onClick={report}>Report post</MenuItem>
+            <>
+              {user.role === 'admin' && <MenuItem icon={Trash2} danger onClick={adminRemove}>Remove (admin)</MenuItem>}
+              <MenuItem icon={Flag} danger onClick={() => setReportOpen(true)}>Report post</MenuItem>
+            </>
           )}
         </Menu>
       </header>
@@ -287,6 +297,7 @@ export default function PostCard({ post, onChange, defaultOpenComments = false }
           onCount={(n) => onChange({ ...post, commentsCount: n })} />
       )}
 
+      <ReportDialog postId={post._id} open={reportOpen} onClose={() => setReportOpen(false)} />
       {lightbox >= 0 && <Lightbox items={imageItems} index={lightbox} onClose={() => setLightbox(-1)} onIndex={setLightbox} />}
     </article>
   );

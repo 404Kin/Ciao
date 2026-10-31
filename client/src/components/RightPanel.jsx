@@ -80,7 +80,7 @@ export default function RightPanel() {
       <section className="card p-4">
         <h3 className="font-bold mb-1">Who to follow</h3>
         {people === null ? <div className="skeleton h-24 mt-2" />
-          : people.length === 0 ? <p className="text-sm text-muted py-2">You're following everyone — wow! 🎉</p>
+          : people.length === 0 ? <p className="text-sm text-muted py-2">You're following everyone.</p>
           : people.slice(0, 4).map((u) => <UserRow key={u._id} user={u} />)}
       </section>
       <section className="card p-4">
@@ -100,7 +100,7 @@ export default function RightPanel() {
             </ul>
           )}
       </section>
-      <p className="text-xs text-muted px-2">© {new Date().getFullYear()} Ciao · made with 💜</p>
+      <p className="text-xs text-muted px-2">© {new Date().getFullYear()} Ciao · <Link to="/guidelines" className="hover:underline">Community guidelines</Link></p>
     </div>
   );
 }

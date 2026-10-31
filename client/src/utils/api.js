@@ -15,6 +15,12 @@ api.interceptors.response.use(
   (res) => res,
   (error) => {
     const url = error.config?.url || '';
+    // suspended while logged in: sign out and explain why on the login page
+    if (error.response?.status === 403 && error.response.data?.code === 'BANNED' && !url.startsWith('/auth/login')) {
+      try { sessionStorage.setItem('ciao_notice', error.response.data.error); } catch { /* ignore */ }
+      localStorage.removeItem('ciao_token');
+      window.dispatchEvent(new Event('ciao:unauthorized'));
+    }
     // An expired / invalid session: clear it and bounce to login (but not for the login call itself)
     if (error.response?.status === 401 && !url.startsWith('/auth/login') && !url.startsWith('/auth/register')) {
       localStorage.removeItem('ciao_token');

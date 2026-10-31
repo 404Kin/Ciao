@@ -57,13 +57,13 @@ export async function renderCollageBlob(chain) {
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
   ctx.fillStyle = '#fff';
-  ctx.font = '800 54px "Plus Jakarta Sans", system-ui, sans-serif';
+  ctx.font = '800 54px "DM Sans", system-ui, sans-serif';
   ctx.textBaseline = 'alphabetic';
   let title = chain.title;
   while (ctx.measureText(title).width > W - PAD * 2 && title.length > 4) title = title.slice(0, -2);
   ctx.fillText(title === chain.title ? title : `${title}…`, PAD, 88);
   ctx.fillStyle = 'rgba(255,255,255,.6)';
-  ctx.font = '500 26px "Plus Jakarta Sans", system-ui, sans-serif';
+  ctx.font = '500 26px "DM Sans", system-ui, sans-serif';
   ctx.fillText(`A chain story by ${chain.entries.length} people`, PAD, 126);
 
   const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); };
@@ -85,7 +85,7 @@ export async function renderCollageBlob(chain) {
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       const size = t.img ? 24 : txt.length > 60 ? 28 : 36;
-      ctx.font = `700 ${size}px "Plus Jakarta Sans", system-ui, sans-serif`;
+      ctx.font = `700 ${size}px "DM Sans", system-ui, sans-serif`;
       const lines = wrap(ctx, txt, tw - 48).slice(0, t.img ? 3 : 7);
       const lh = size * 1.25;
       if (t.img) {
@@ -105,13 +105,13 @@ export async function renderCollageBlob(chain) {
     ctx.fillStyle = 'rgba(0,0,0,.45)';
     ctx.fillRect(t.x, t.y + t.h - 38, tw, 38);
     ctx.fillStyle = '#fff';
-    ctx.font = '600 20px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.font = '600 20px "DM Sans", system-ui, sans-serif';
     ctx.fillText(`@${t.e.user?.username || 'someone'}`, t.x + 16, t.y + t.h - 13);
     ctx.restore();
   }
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(255,255,255,.45)';
-  ctx.font = '600 22px "Plus Jakarta Sans", system-ui, sans-serif';
+  ctx.font = '600 22px "DM Sans", system-ui, sans-serif';
   ctx.fillText('Made on Ciao', W - PAD, H - 24);
 
   return new Promise((resolve, reject) => cv.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not build the picture'))), 'image/jpeg', 0.9));

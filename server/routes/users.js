@@ -2,7 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import Post from '../models/Post.js';
 import auth, { optionalAuth } from '../middleware/auth.js';
-import { handleUpload, uploadAvatar, uploadCover, removeUpload } from '../middleware/upload.js';
+import { handleUpload, uploadAvatar, removeUpload } from '../middleware/upload.js';
 import { notify, unnotify } from '../utils/notify.js';
 import { escapeRegex } from '../utils/serialize.js';
 import { RESERVED, USERNAME_RE } from './auth.js';
@@ -10,7 +10,7 @@ import { RESERVED, USERNAME_RE } from './auth.js';
 const router = express.Router();
 
 const PUBLIC_FIELDS =
-  'name username avatar avatarUrl cover bio status location website createdAt followers following';
+  'name username avatar avatarUrl bio status location website createdAt followers following';
 
 async function profileOf(userDoc, meId) {
   const u = userDoc.toObject ? userDoc.toObject() : userDoc;
@@ -22,7 +22,6 @@ async function profileOf(userDoc, meId) {
     username: u.username,
     avatar: u.avatar || '',
     avatarUrl: u.avatarUrl || '',
-    cover: u.cover || '',
     bio: u.bio || '',
     status: u.status || '',
     location: u.location || '',
@@ -60,7 +59,7 @@ router.get('/me', auth, async (req, res) => {
     const user = await User.findById(req.userId).select('-password');
     if (!user) return res.status(404).json({ error: 'User not found' });
     const profile = await profileOf(user, req.userId);
-    res.json({ ...profile, email: user.email });
+    res.json({ ...profile, email: user.email, role: user.role });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -102,7 +101,7 @@ router.patch('/me', auth, async (req, res) => {
 
     await user.save();
     const profile = await profileOf(user, req.userId);
-    res.json({ ...profile, email: user.email });
+    res.json({ ...profile, email: user.email, role: user.role });
   } catch (err) {
     console.error('Update profile error:', err.message);
     res.status(500).json({ error: err.message });
@@ -135,37 +134,6 @@ router.delete('/me/avatar', auth, async (req, res) => {
     user.avatarUrl = '';
     await user.save();
     res.json({ avatarUrl: '' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ---------- COVER upload / remove ----------
-router.post('/me/cover', auth, handleUpload(uploadCover), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: 'Please choose an image' });
-    const user = await User.findById(req.userId);
-    if (!user) {
-      removeUpload(`/uploads/avatars/${req.file.filename}`);
-      return res.status(404).json({ error: 'User not found' });
-    }
-    removeUpload(user.cover);
-    user.cover = `/uploads/avatars/${req.file.filename}`;
-    await user.save();
-    res.json({ cover: user.cover });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.delete('/me/cover', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    removeUpload(user.cover);
-    user.cover = '';
-    await user.save();
-    res.json({ cover: '' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -70,7 +70,7 @@ function CreateChainModal({ open, onClose }) {
     setBusy(true);
     try {
       const { data } = await api.post('/chains', fd);
-      toast.success('Chain started! Your friends have been tagged 🔗');
+      toast.success('Chain started. Your friends have been tagged.');
       onClose();
       navigate(`/chain/${data.chain._id}`);
     } catch (err) { toast.error(errMsg(err)); setBusy(false); }
@@ -80,7 +80,7 @@ function CreateChainModal({ open, onClose }) {
     <Modal open={open} onClose={busy ? undefined : onClose} title="Start a chain" size="md">
       <form onSubmit={submit} className="space-y-4">
         <p className="text-sm text-muted">Tag your friends. Each of them adds <b className="text-ink">one photo or one line</b>, and together it becomes a collage story.</p>
-        <input className="field" placeholder="Chain title — e.g. “Our Cox's Bazar trip”" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} autoFocus />
+        <input className="field" placeholder="Chain title, e.g. Our Cox's Bazar trip" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} autoFocus />
         <div>
           <p className="text-xs font-semibold text-muted mb-1.5">Your opening piece</p>
           <PiecePicker text={text} setText={setText} file={file} setFile={setFile} placeholder="Write the first line of the story…" />
@@ -107,7 +107,7 @@ function ChainCard({ c }) {
           <h3 className="font-bold truncate">{c.title}</h3>
           <p className="text-xs text-muted mt-0.5">by @{c.owner.username} · {timeAgo(c.createdAt)}</p>
         </div>
-        {c.myTurn ? <span className="chip !bg-accent !text-white !border-accent shrink-0">Your turn ✨</span>
+        {c.myTurn ? <span className="chip !bg-accent !text-white !border-accent shrink-0">Your turn</span>
           : c.status === 'done' ? <span className="chip shrink-0"><Check size={12} /> Completed</span>
           : <span className="chip shrink-0">{c.entries.length - 1}/{c.invited.length} added</span>}
       </div>

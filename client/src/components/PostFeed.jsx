@@ -78,7 +78,7 @@ export default function PostFeed({ state, empty }) {
       <div ref={sentinel} className="py-4 grid place-items-center min-h-10">
         {loadingMore ? <Spinner /> : hasMore ? (
           <button className="btn-ghost btn-sm" onClick={loadMore}>Load more</button>
-        ) : <p className="text-xs text-muted">You're all caught up ✨</p>}
+        ) : <p className="text-xs text-muted">You're all caught up</p>}
       </div>
     </div>
   );

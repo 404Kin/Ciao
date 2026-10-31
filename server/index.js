@@ -13,6 +13,8 @@ import userRoutes from './routes/users.js';
 import songRoutes from './routes/songs.js';
 import notificationRoutes from './routes/notifications.js';
 import chainRoutes from './routes/chains.js';
+import adminRoutes from './routes/admin.js';
+import User from './models/User.js';
 import Song from './models/Song.js';
 
 dotenv.config();
@@ -69,6 +71,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/songs', songRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chains', chainRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Route not found' }));
 
@@ -102,12 +105,24 @@ async function seedDemoSongs() {
   }
 }
 
+// Emails listed in ADMIN_EMAILS (server/.env) become admins
+async function promoteAdmins() {
+  const emails = (process.env.ADMIN_EMAILS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  if (!emails.length) {
+    console.log('ℹ️  No ADMIN_EMAILS set in server/.env, so there is no admin account yet.');
+    return;
+  }
+  const r = await User.updateMany({ email: { $in: emails } }, { $set: { role: 'admin' } });
+  if (r.modifiedCount) console.log(`🛡️  Admin rights granted to ${r.modifiedCount} account(s)`);
+}
+
 // ---------- Start ----------
 mongoose
   .connect(process.env.MONGO_URI)
   .then(async () => {
     console.log('✅ MongoDB connected successfully');
     await seedDemoSongs();
+    await promoteAdmins();
     app.listen(PORT, () => {
       console.log(`🌸 Ciao server running on http://localhost:${PORT}`);
     });

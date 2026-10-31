@@ -8,13 +8,15 @@ import Comment from '../models/Comment.js';
 import Song from '../models/Song.js';
 import Notification from '../models/Notification.js';
 import Chain from '../models/Chain.js';
-import auth from '../middleware/auth.js';
+import auth, { isBanned, banMessage, liftIfExpired } from '../middleware/auth.js';
 import { removeUpload } from '../middleware/upload.js';
 
 const router = express.Router();
 
 export const RESERVED = ['me', 'search', 'suggestions', 'admin', 'api', 'login', 'register', 'settings'];
 export const USERNAME_RE = /^[a-z0-9_]{3,20}$/;
+
+const adminEmails = () => (process.env.ADMIN_EMAILS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 const signToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -58,6 +60,7 @@ router.post('/register', async (req, res) => {
       email: email.trim().toLowerCase(),
       password: hash,
       avatar: typeof avatar === 'string' ? avatar.slice(0, 80) : '',
+      role: adminEmails().includes(email.trim().toLowerCase()) ? 'admin' : 'user',
     });
 
     res.status(201).json({ token: signToken(user._id), user });
@@ -84,6 +87,9 @@ router.post('/login', async (req, res) => {
 
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ error: 'Wrong password' });
+
+    await liftIfExpired(user);
+    if (isBanned(user)) return res.status(403).json({ error: banMessage(user), code: 'BANNED' });
 
     res.json({ token: signToken(user._id), user });
   } catch (err) {
@@ -174,7 +180,6 @@ router.delete('/account', auth, async (req, res) => {
     }
 
     removeUpload(user.avatarUrl);
-    removeUpload(user.cover);
     await User.deleteOne({ _id: id });
 
     res.json({ message: 'Account deleted' });

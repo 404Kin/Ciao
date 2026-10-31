@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Trash2, UserPlus, MessageCircle, Heart, Link2 } from 'lucide-react';
+import { Bell, Trash2, UserPlus, MessageCircle, Heart, Link2, TriangleAlert } from 'lucide-react';
 import api, { errMsg, mediaUrl } from '../utils/api.js';
 import { PageHeader, EmptyState, Avatar, Spinner, useConfirm } from '../components/ui.jsx';
 import { useNotifs } from '../components/AppShell.jsx';
@@ -13,9 +13,10 @@ const describe = (n) => {
     case 'comment': return { icon: <MessageCircle size={14} />, text: 'commented on your post' };
     case 'reply': return { icon: <MessageCircle size={14} />, text: 'replied to your comment' };
     case 'comment_like': return { icon: <Heart size={13} fill="currentColor" />, text: 'liked your comment' };
+    case 'warning': return { icon: <TriangleAlert size={14} />, text: 'Notice from the Ciao team', notice: true };
     case 'chain_invite': return { icon: <Link2 size={14} />, text: 'tagged you in a chain' };
     case 'chain_add': return { icon: <Link2 size={14} />, text: 'added to your chain' };
-    case 'chain_done': return { icon: <Link2 size={14} />, text: 'finished a chain — the collage is ready 🎉' };
+    case 'chain_done': return { icon: <Link2 size={14} />, text: 'finished a chain. The collage is ready' };
     case 'follow': return { icon: <UserPlus size={14} />, text: 'started following you' };
     default: return { icon: <Bell size={14} />, text: 'interacted with you' };
   }
@@ -66,7 +67,9 @@ export default function Notifications() {
                         <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full gradient-accent text-white grid place-items-center text-xs border-2 border-surface">{d.icon}</span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm"><b>{n.actor.name}</b> <span className="text-muted">{d.text}</span></p>
+                        {d.notice ? (
+                          <><p className="text-sm font-bold">{d.text}</p><p className="text-sm text-ink/90 mt-0.5 break-words">{n.meta} <Link to="/guidelines" className="text-accent hover:underline">Guidelines</Link></p></>
+                        ) : <p className="text-sm"><b>{n.actor.name}</b> <span className="text-muted">{d.text}</span></p>}
                         {(n.type === 'comment' || n.type === 'reply') && n.meta && <p className="text-sm text-ink/80 line-clamp-2 mt-0.5">“{n.meta}”</p>}
                         {n.chain?.title && <p className="text-sm text-ink/80 truncate mt-0.5">“{n.chain.title}”</p>}
                         {n.post?.text && n.type !== 'comment' && n.type !== 'reply' && <p className="text-xs text-muted truncate mt-0.5">{n.post.text}</p>}

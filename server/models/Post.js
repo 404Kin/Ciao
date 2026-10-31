@@ -38,6 +38,7 @@ const postSchema = new mongoose.Schema(
     reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     reportCount: { type: Number, default: 0 },
     hidden: { type: Boolean, default: false },
+    hiddenReason: { type: String, enum: ['', 'reports', 'ban'], default: '' },
 
     // Legacy fields (old posts from the first version of Ciao)
     image: { type: String, default: '' },

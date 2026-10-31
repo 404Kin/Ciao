@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Music, Bell, Bookmark, User, Settings, Plus, Search, LogOut, Link2 } from 'lucide-react';
+import { Home, Compass, Music, Bell, Bookmark, User, Settings, Plus, Search, LogOut, Link2, ShieldCheck } from 'lucide-react';
 import api from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Avatar, Modal } from './ui.jsx';
@@ -44,6 +44,7 @@ export default function AppShell() {
     { to: '/saved', label: 'Saved', icon: Bookmark },
     { to: `/u/${user.username}`, label: 'Profile', icon: User },
     { to: '/settings', label: 'Settings', icon: Settings },
+    ...(user.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: ShieldCheck }] : []),
   ];
 
   const onPosted = (post) => {
@@ -53,8 +54,8 @@ export default function AppShell() {
   };
 
   const linkCls = ({ isActive }) =>
-    `relative flex items-center gap-4 rounded-full px-4 py-3 text-[16px] transition hover:bg-surface2 ${
-      isActive ? 'font-extrabold text-ink' : 'font-medium text-ink/80'
+    `relative flex items-center gap-4 rounded-xl px-4 py-3 text-[16px] transition hover:bg-surface2 ${
+      isActive ? 'font-bold text-ink' : 'font-normal text-ink'
     } max-lg:justify-center max-lg:px-0 max-lg:w-12 max-lg:h-12 max-lg:mx-auto`;
 
   return (
@@ -78,7 +79,7 @@ export default function AppShell() {
               </NavLink>
             ))}
           </nav>
-          <button className="btn-primary mt-5 !py-3.5 text-base max-lg:!w-12 max-lg:!h-12 max-lg:!p-0 max-lg:mx-auto" onClick={() => setComposeOpen(true)} aria-label="New post">
+          <button className="btn-primary mt-5 !py-3 text-[15px] max-lg:!w-12 max-lg:!h-12 max-lg:!p-0 max-lg:mx-auto" onClick={() => setComposeOpen(true)} aria-label="New post">
             <Plus size={22} className="lg:hidden" /> <span className="max-lg:hidden">New post</span>
           </button>
 
@@ -109,6 +110,7 @@ export default function AppShell() {
                 <Bell size={21} />
                 {unread > 0 && <span className="absolute top-0.5 right-0 min-w-[16px] h-4 px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">{unread > 9 ? '9+' : unread}</span>}
               </Link>
+              {user.role === 'admin' && <Link to="/admin" className="icon-btn" aria-label="Admin"><ShieldCheck size={20} /></Link>}
               <Link to="/settings" className="icon-btn" aria-label="Settings"><Settings size={20} /></Link>
             </div>
           </div>
@@ -134,7 +136,7 @@ export default function AppShell() {
             { to: `/u/${user.username}`, icon: User, label: 'Profile' },
           ].map((it, i) =>
             it === null ? (
-              <button key="add" onClick={() => setComposeOpen(true)} className="mx-auto w-12 h-12 -mt-4 rounded-2xl gradient-accent text-white grid place-items-center shadow-glow active:scale-95 transition" aria-label="New post">
+              <button key="add" onClick={() => setComposeOpen(true)} className="mx-auto w-11 h-11 rounded-xl bg-accent text-white grid place-items-center active:scale-95 transition" aria-label="New post">
                 <Plus size={26} />
               </button>
             ) : (

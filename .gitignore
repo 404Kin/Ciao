@@ -2,3 +2,7 @@ node_modules
 .env
 server/uploads/media
 server/uploads/avatars
+server/uploads/chains
+server/uploads/*.jpg
+server/uploads/songs/*
+!server/uploads/songs/demo-*.mp3

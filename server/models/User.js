@@ -10,11 +10,17 @@ const userSchema = new mongoose.Schema(
     // Profile
     avatar: { type: String, default: '' }, // 'preset:<file>' (avatar image shipped with the app) or a legacy emoji
     avatarUrl: { type: String, default: '' }, // uploaded photo
-    cover: { type: String, default: '' }, // uploaded cover photo
     bio: { type: String, default: 'Just joined Ciao ✨', maxlength: 200 },
     status: { type: String, default: '', maxlength: 80 },
     location: { type: String, default: '', maxlength: 60 },
     website: { type: String, default: '', maxlength: 100 },
+
+    // Moderation
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    banned: { type: Boolean, default: false },
+    bannedUntil: { type: Date, default: null }, // null + banned = permanent
+    banReason: { type: String, default: '' },
+    warnings: { type: Number, default: 0 },
 
     // Social graph
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

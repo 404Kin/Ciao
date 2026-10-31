@@ -37,7 +37,7 @@ export function LogoMark({ size = 40, className = '' }) {
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="rgb(var(--accent))" />
-          <stop offset="1" stopColor="rgb(var(--accent2))" />
+          <stop offset="1" stopColor="rgb(var(--accent))" />
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="19" fill={`url(#${id})`} />

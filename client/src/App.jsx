@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
-import { ThemeProvider, AppBackdrop } from './context/ThemeContext.jsx';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 import { MusicProvider } from './context/MusicContext.jsx';
 import { ConfirmProvider, Spinner } from './components/ui.jsx';
 import AppShell from './components/AppShell.jsx';
@@ -16,6 +16,8 @@ import PostPage from './pages/PostPage.jsx';
 import Profile, { MyProfileRedirect } from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
 import Chains from './pages/Chains.jsx';
+import Admin from './pages/Admin.jsx';
+import Guidelines from './pages/Guidelines.jsx';
 import ChainPage from './pages/ChainPage.jsx';
 
 function Protected({ children }) {
@@ -33,7 +35,7 @@ function Protected({ children }) {
 function NotFound() {
   return (
     <div className="p-10 text-center">
-      <div className="text-6xl mb-3">🧭</div>
+      <div className="w-16 h-16 rounded-full border-2 border-ink/80 grid place-items-center mx-auto mb-4 text-2xl font-bold">?</div>
       <h2 className="font-bold text-xl">Page not found</h2>
       <a href="/" className="btn-primary btn-sm mt-5 inline-flex">Go home</a>
     </div>
@@ -43,7 +45,6 @@ function NotFound() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppBackdrop />
       <ToastProvider>
         <BrowserRouter>
           <AuthProvider>
@@ -52,12 +53,15 @@ export default function App() {
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/rules" element={<Navigate to="/guidelines" replace />} />
                   <Route element={<Protected><AppShell /></Protected>}>
                     <Route path="/" element={<Home />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/tag/:tag" element={<TagPage />} />
                     <Route path="/music" element={<MusicPage />} />
                     <Route path="/chains" element={<Chains />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/guidelines" element={<Guidelines />} />
                     <Route path="/chain/:id" element={<ChainPage />} />
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="/saved" element={<Saved />} />
