@@ -1,7 +1,3 @@
-# Ciao 💬 — social app (React + Express + MongoDB)
-
-## Run it
-```bash
 # 1) backend  (http://localhost:5000)
 cd server
 npm install
