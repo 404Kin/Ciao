@@ -48,3 +48,5 @@ export function gradientFor(str = '') {
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
   return `linear-gradient(135deg, hsl(${h} 75% 55%), hsl(${(h + 55) % 360} 80% 45%))`;
 }
+
+export const QUICK_EMOJIS = ['😀','😂','🥰','😍','😎','🤩','🥳','😢','😡','🤔','🙏','👍','👏','🔥','✨','💖','🎉','🎶','🌸','🌈','☕','🍕','📸','💬'];

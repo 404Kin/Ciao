@@ -8,6 +8,8 @@ import Comment from '../models/Comment.js';
 import Song from '../models/Song.js';
 import Notification from '../models/Notification.js';
 import Chain from '../models/Chain.js';
+import Conversation from '../models/Conversation.js';
+import Message from '../models/Message.js';
 import auth, { isBanned, banMessage, liftIfExpired } from '../middleware/auth.js';
 import { removeUpload } from '../middleware/upload.js';
 
@@ -178,6 +180,14 @@ router.delete('/account', auth, async (req, res) => {
       c.invited = c.invited.filter((u) => String(u) !== String(id));
       await c.save();
     }
+
+    // private chats
+    const convs = await Conversation.find({ participants: id }).select('_id');
+    const convIds = convs.map((c) => c._id);
+    const msgs = await Message.find({ conversation: { $in: convIds }, image: { $ne: '' } }).select('image');
+    msgs.forEach((m) => removeUpload(m.image));
+    await Message.deleteMany({ conversation: { $in: convIds } });
+    await Conversation.deleteMany({ _id: { $in: convIds } });
 
     removeUpload(user.avatarUrl);
     await User.deleteOne({ _id: id });

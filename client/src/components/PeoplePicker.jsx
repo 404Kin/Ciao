@@ -7,7 +7,7 @@ import { Avatar, Spinner } from './ui.jsx';
 
 // Pick people to tag. With nothing typed it lists people you follow plus other people on Ciao,
 // typing searches everyone by name or username.
-export default function PeoplePicker({ selected, onChange, max = 20 }) {
+export default function PeoplePicker({ selected = [], onChange, onPick, max = 20 }) {
   const { user: me } = useAuth();
   const toast = useToast();
   const [q, setQ] = useState('');
@@ -45,6 +45,7 @@ export default function PeoplePicker({ selected, onChange, max = 20 }) {
 
   const has = (u) => selected.some((s) => s._id === u._id);
   const toggle = (u) => {
+    if (onPick) { onPick(u); return; }
     if (has(u)) onChange(selected.filter((s) => s._id !== u._id));
     else if (selected.length >= max) toast.info(`You can tag up to ${max} people`);
     else onChange([...selected, u]);
@@ -56,7 +57,7 @@ export default function PeoplePicker({ selected, onChange, max = 20 }) {
     if (e.key !== 'Enter') return;
     e.preventDefault();
     const first = list.find((u) => !has(u));
-    if (first) { toggle(first); setQ(''); }
+    if (first) { toggle(first); if (!onPick) setQ(''); }
   };
 
   return (
@@ -84,11 +85,11 @@ export default function PeoplePicker({ selected, onChange, max = 20 }) {
           <button type="button" key={u._id} onClick={() => toggle(u)} aria-pressed={has(u)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-surface2 text-left">
             <Avatar user={u} size={34} />
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{u.name}</span><span className="block text-xs text-muted truncate">@{u.username}</span></span>
-            <span className={`w-5 h-5 rounded-full border-2 grid place-items-center ${has(u) ? 'bg-accent border-accent text-white' : 'border-line'}`}>{has(u) && <Check size={12} />}</span>
+            {!onPick && <span className={`w-5 h-5 rounded-full border-2 grid place-items-center ${has(u) ? 'bg-accent border-accent text-white' : 'border-line'}`}>{has(u) && <Check size={12} />}</span>}
           </button>
         ))}
       </div>
-      <p className="text-[11px] text-muted">{selected.length === 0 ? 'Tap a person to tag them.' : `${selected.length} tagged`} Only tagged people can add to the chain.</p>
+      {!onPick && <p className="text-[11px] text-muted">{selected.length === 0 ? 'Tap a person to tag them.' : `${selected.length} tagged`} Only tagged people can add to the chain.</p>}
     </div>
   );
 }

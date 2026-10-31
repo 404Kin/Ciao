@@ -138,35 +138,40 @@ export function MiniPlayer() {
   if (!current) return null;
   return (
     <>
-      <div className="fixed z-40 inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] md:bottom-0 md:safe-bottom px-2 md:px-0 pointer-events-none">
-        <div className="pointer-events-auto mx-auto max-w-[1000px] md:mb-3 card shadow-card !bg-surface/95 backdrop-blur-xl overflow-hidden animate-rise">
-          <div className="md:hidden"><SeekBar className="!h-[3px] !rounded-none block" /></div>
-          <div className="flex items-center gap-3 px-3 py-2">
-            <button className="flex items-center gap-3 min-w-0 flex-1 md:flex-none md:w-64 text-left" onClick={() => m.setPanelOpen(true)} aria-label="Open player">
-              <SongCover song={current} size={44} className={playing ? '' : 'opacity-80'} />
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold truncate">{current.title}</span>
-                <span className="block text-xs text-muted truncate">{m.error || current.artist}</span>
-              </span>
-            </button>
+      <div className="fixed z-40 inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom))] md:bottom-0 pointer-events-none">
+        <div className="mx-auto max-w-[1280px] flex justify-center">
+          <div className="hidden md:block w-[84px] lg:w-[270px] shrink-0" />
+          <div className="w-full max-w-[640px] min-w-0 px-2 md:px-3 md:pb-3">
+            <div className="pointer-events-auto card shadow-card !bg-surface overflow-hidden animate-rise">
+              <div className="md:hidden"><SeekBar className="!h-[3px] !rounded-none block" /></div>
+              <div className="flex items-center gap-2 px-3 py-2">
+                <button className="flex items-center gap-3 min-w-0 flex-1 md:flex-none md:w-48 text-left" onClick={() => m.setPanelOpen(true)} aria-label="Open player">
+                  <SongCover song={current} size={42} className={playing ? '' : 'opacity-80'} />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold truncate">{current.title}</span>
+                    <span className="block text-xs text-muted truncate">{m.error || current.artist}</span>
+                  </span>
+                </button>
 
-            <div className="hidden md:flex flex-1 items-center gap-3 min-w-0">
-              <span className="text-[11px] text-muted w-9 text-right tabular-nums">{fmtTime(m.currentTime)}</span>
-              <SeekBar />
-              <span className="text-[11px] text-muted w-9 tabular-nums">{fmtTime(m.duration)}</span>
-            </div>
+                <div className="hidden md:flex flex-1 items-center gap-2 min-w-0">
+                  <span className="text-[11px] text-muted w-8 text-right tabular-nums">{fmtTime(m.currentTime)}</span>
+                  <SeekBar />
+                  <span className="text-[11px] text-muted w-8 tabular-nums">{fmtTime(m.duration)}</span>
+                </div>
 
-            <div className="flex items-center gap-0.5">
-              <button className="icon-btn hidden sm:inline-grid" onClick={m.prev} aria-label="Previous"><SkipBack size={18} /></button>
-              <button className="w-10 h-10 rounded-full gradient-accent text-white grid place-items-center active:scale-95 transition" onClick={m.toggle} aria-label={playing ? 'Pause' : 'Play'}>
-                {buffering ? <Loader2 size={18} className="spin" /> : playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
-              </button>
-              <button className="icon-btn" onClick={m.next} aria-label="Next"><SkipForward size={18} /></button>
+                <div className="flex items-center">
+                  <button className="icon-btn hidden sm:inline-grid" onClick={m.prev} aria-label="Previous"><SkipBack size={18} /></button>
+                  <button className="w-9 h-9 rounded-full bg-accent text-white grid place-items-center active:scale-95 transition" onClick={m.toggle} aria-label={playing ? 'Pause' : 'Play'}>
+                    {buffering ? <Loader2 size={17} className="spin" /> : playing ? <Pause size={17} /> : <Play size={17} className="ml-0.5" />}
+                  </button>
+                  <button className="icon-btn" onClick={m.next} aria-label="Next"><SkipForward size={18} /></button>
+                </div>
+                <button className="icon-btn hidden sm:inline-grid" onClick={() => m.setPanelOpen(true)} aria-label="Queue"><ListMusic size={18} /></button>
+                <button className="icon-btn" onClick={m.stop} aria-label="Close player"><X size={18} /></button>
+              </div>
             </div>
-            <div className="hidden lg:block"><VolumeControl /></div>
-            <button className="icon-btn hidden sm:inline-grid" onClick={() => m.setPanelOpen(true)} aria-label="Queue"><ListMusic size={18} /></button>
-            <button className="icon-btn" onClick={m.stop} aria-label="Close player"><X size={18} /></button>
           </div>
+          <div className="hidden xl:block w-[340px] shrink-0" />
         </div>
       </div>
       <NowPlayingSheet />

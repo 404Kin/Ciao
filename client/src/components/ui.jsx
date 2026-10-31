@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2, X, ArrowLeft, Bell, Bookmark, Music, Heart, FileText, Image as ImageIcon, Search, UserX, Link2, Layers, WifiOff, Flame, Sparkles, Users, Lock, Inbox } from 'lucide-react';
+import { Loader2, X, ArrowLeft, Bell, Bookmark, Music, Heart, FileText, Image as ImageIcon, Search, UserX, Link2, Layers, WifiOff, Flame, Sparkles, Users, Lock, Inbox, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mediaUrl } from '../utils/api.js';
 import { gradientFor } from '../utils/format.js';
@@ -37,7 +37,7 @@ export const Spinner = ({ size = 20, className = '' }) => (
 
 const EMPTY_ICONS = {
   bell: Bell, bookmark: Bookmark, music: Music, heart: Heart, file: FileText, image: ImageIcon, search: Search,
-  user: UserX, link: Link2, layers: Layers, wifi: WifiOff, flame: Flame, sparkles: Sparkles, users: Users, lock: Lock, inbox: Inbox,
+  user: UserX, link: Link2, layers: Layers, wifi: WifiOff, flame: Flame, sparkles: Sparkles, users: Users, lock: Lock, inbox: Inbox, send: Send,
 };
 
 // Neutral circular icon, not an emoji. Old callers that still pass `emoji` get a sensible icon.
@@ -164,33 +164,53 @@ export function ConfirmProvider({ children }) {
 }
 export const useConfirm = () => useContext(ConfirmContext);
 
-/* ---------- Dropdown menu ---------- */
+/* ---------- Dropdown menu (floats above everything, flips up when there is no room) ---------- */
 export function Menu({ trigger, children, align = 'right', width = 'w-52' }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef(null);
+  const wrap = useRef(null);
+  const panel = useRef(null);
+
+  useLayoutEffect(() => {
+    if (!open || !panel.current || !wrap.current) return;
+    const r = wrap.current.getBoundingClientRect();
+    const h = panel.current.offsetHeight;
+    const w = panel.current.offsetWidth;
+    let top = r.bottom + 6;
+    if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+    let left = align === 'right' ? r.right - w : r.left;
+    left = Math.min(Math.max(8, left), window.innerWidth - w - 8);
+    panel.current.style.top = `${top}px`;
+    panel.current.style.left = `${left}px`;
+    panel.current.style.visibility = 'visible';
+  }, [open, align]);
+
   useEffect(() => {
     if (!open) return;
-    const onDoc = (e) => !ref.current?.contains(e.target) && setOpen(false);
-    const onKey = (e) => e.key === 'Escape' && setOpen(false);
-    document.addEventListener('mousedown', onDoc);
-    document.addEventListener('touchstart', onDoc);
-    document.addEventListener('keydown', onKey);
+    const outside = (e) => !wrap.current?.contains(e.target) && !panel.current?.contains(e.target) && setOpen(false);
+    const key = (e) => e.key === 'Escape' && setOpen(false);
+    const scroll = (e) => !panel.current?.contains(e.target) && setOpen(false);
+    document.addEventListener('mousedown', outside);
+    document.addEventListener('touchstart', outside);
+    document.addEventListener('keydown', key);
+    window.addEventListener('scroll', scroll, true);
+    window.addEventListener('resize', () => setOpen(false));
     return () => {
-      document.removeEventListener('mousedown', onDoc);
-      document.removeEventListener('touchstart', onDoc);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', outside);
+      document.removeEventListener('touchstart', outside);
+      document.removeEventListener('keydown', key);
+      window.removeEventListener('scroll', scroll, true);
     };
   }, [open]);
+
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={wrap}>
       <span onClick={() => setOpen((o) => !o)}>{trigger}</span>
-      {open && (
-        <div
-          className={`absolute z-40 mt-1 ${width} ${align === 'right' ? 'right-0' : 'left-0'} card shadow-card p-1.5 animate-pop origin-top-right`}
-          onClick={() => setOpen(false)}
-        >
+      {open && createPortal(
+        <div ref={panel} style={{ position: 'fixed', top: 0, left: 0, visibility: 'hidden' }}
+          className={`z-[120] ${width} max-h-[70vh] overflow-y-auto card shadow-card p-1.5 animate-rise`} onClick={() => setOpen(false)}>
           {children}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

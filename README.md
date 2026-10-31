@@ -1,3 +1,7 @@
+# Ciao 💬 — social app (React + Express + MongoDB)
+
+## Run it
+```bash
 # 1) backend  (http://localhost:5000)
 cd server
 npm install
@@ -20,6 +24,7 @@ On first start the server adds 5 built-in demo songs to the music library.
 - **Comments**: add, reply, like, delete
 - **Music**: add many songs at once (or drag & drop), or add a song from a direct audio link; global player (play/pause, next/prev, seek, volume, shuffle, repeat, queue), upload your own songs (+cover art), like songs, attach songs to posts
 - **Admin & safety**: report posts with a reason, community guidelines page, admin panel (reports queue, remove posts, warn / suspend users, activity log)
+- **Messages**: private 1-to-1 chat with text, photos and emoji, unread badge, "Seen", unsend (start from a profile or the New message button)
 - **Chains**: tag friends; each adds one photo or line; when everyone is done it becomes a collage story you can save or share to your feed
 - **Explore & search**: people, posts, trending tags, popular posts
 - **Notifications**: reactions, comments, replies, follows (with unread badge)

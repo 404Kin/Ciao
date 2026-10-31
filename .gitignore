@@ -3,6 +3,7 @@ node_modules
 server/uploads/media
 server/uploads/avatars
 server/uploads/chains
+server/uploads/messages
 server/uploads/*.jpg
 server/uploads/songs/*
 !server/uploads/songs/demo-*.mp3

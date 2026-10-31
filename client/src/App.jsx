@@ -17,6 +17,8 @@ import Profile, { MyProfileRedirect } from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
 import Chains from './pages/Chains.jsx';
 import Admin from './pages/Admin.jsx';
+import Messages from './pages/Messages.jsx';
+import ChatPage from './pages/ChatPage.jsx';
 import Guidelines from './pages/Guidelines.jsx';
 import ChainPage from './pages/ChainPage.jsx';
 
@@ -61,6 +63,8 @@ export default function App() {
                     <Route path="/music" element={<MusicPage />} />
                     <Route path="/chains" element={<Chains />} />
                     <Route path="/admin" element={<Admin />} />
+                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/messages/:id" element={<ChatPage />} />
                     <Route path="/guidelines" element={<Guidelines />} />
                     <Route path="/chain/:id" element={<ChainPage />} />
                     <Route path="/notifications" element={<Notifications />} />

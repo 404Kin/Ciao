@@ -3,11 +3,10 @@ import { ImagePlus, Music, Smile, X, Send, Loader2, Play } from 'lucide-react';
 import api, { errMsg } from '../utils/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { MOODS } from '../utils/format.js';
+import { MOODS, QUICK_EMOJIS } from '../utils/format.js';
 import { Avatar, Menu } from './ui.jsx';
 import { SongPicker, PostSong } from './music.jsx';
 
-const EMOJIS = ['😀','😂','🥰','😍','😎','🤩','🥳','😢','😡','🤔','🙏','👍','👏','🔥','✨','💖','🎉','🎶','🌸','🌈','☕','🍕','📸','💬'];
 
 export default function Composer({ onPosted, autoFocus = false, compact = false }) {
   const { user } = useAuth();
@@ -86,14 +85,19 @@ export default function Composer({ onPosted, autoFocus = false, compact = false 
 
   return (
     <div className={`${compact ? '' : 'card p-4'}`}>
-      <div className="flex gap-3">
-        <Avatar user={user} size={44} />
+      <div className={compact ? '' : 'flex gap-3'}>
+        {compact ? (
+          <div className="flex items-center gap-3 mb-2">
+            <Avatar user={user} size={40} />
+            <div className="min-w-0"><p className="font-semibold text-sm leading-tight truncate">{user?.name}</p><p className="text-xs text-muted truncate">@{user?.username}</p></div>
+          </div>
+        ) : <Avatar user={user} size={44} />}
         <div className="flex-1 min-w-0">
           <textarea
-            ref={area} value={text} onChange={(e) => setText(e.target.value)} rows={compact ? 3 : 2} maxLength={2000}
+            ref={area} value={text} onChange={(e) => setText(e.target.value)} rows={compact ? 5 : 2} maxLength={2000}
             onKeyDown={(e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submit(); }}
             placeholder={`What's on your mind, ${user?.name?.split(' ')[0] || 'friend'}?`}
-            className="w-full bg-transparent resize-none outline-none text-[16px] placeholder:text-muted pt-2"
+            className={`w-full bg-transparent resize-none outline-none text-[16px] placeholder:text-muted ${compact ? 'min-h-[120px]' : 'pt-2'}`}
           />
 
           {files.length > 0 && (
@@ -127,7 +131,7 @@ export default function Composer({ onPosted, autoFocus = false, compact = false 
             </button>
             <Menu align="left" width="w-64" trigger={<button className="icon-btn !text-accent" aria-label="Emoji" title="Emoji"><Smile size={20} /></button>}>
               <div className="grid grid-cols-6 gap-1 p-1" onClick={(e) => e.stopPropagation()}>
-                {EMOJIS.map((e) => (
+                {QUICK_EMOJIS.map((e) => (
                   <button key={e} className="text-xl h-9 rounded-lg hover:bg-surface2" onClick={() => insertEmoji(e)}>{e}</button>
                 ))}
               </div>

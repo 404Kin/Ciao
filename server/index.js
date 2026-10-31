@@ -14,6 +14,7 @@ import songRoutes from './routes/songs.js';
 import notificationRoutes from './routes/notifications.js';
 import chainRoutes from './routes/chains.js';
 import adminRoutes from './routes/admin.js';
+import messageRoutes from './routes/messages.js';
 import User from './models/User.js';
 import Song from './models/Song.js';
 
@@ -72,6 +73,7 @@ app.use('/api/songs', songRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chains', chainRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Route not found' }));
 

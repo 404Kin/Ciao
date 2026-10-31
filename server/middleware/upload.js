@@ -73,6 +73,14 @@ export const uploadChainImage = multer({
     isImage(file) ? cb(null, true) : cb(new Error('Only image files are allowed')),
 }).single('image');
 
+// Chat: one optional picture per message
+export const uploadMessageImage = multer({
+  storage: storageFor('messages'),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) =>
+    isImage(file) ? cb(null, true) : cb(new Error('Only image files are allowed')),
+}).single('image');
+
 export const isVideoFile = (f) => isVideo(f);
 
 // Delete a stored file given its public url (e.g. /uploads/media/x.jpg)

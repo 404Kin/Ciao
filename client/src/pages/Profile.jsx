@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { MapPin, Link2, Calendar, LayoutGrid, List, Bookmark } from 'lucide-react';
-import api from '../utils/api.js';
+import { MapPin, Link2, Calendar, LayoutGrid, List, Bookmark, Send } from 'lucide-react';
+import api, { errMsg } from '../utils/api.js';
+import { useToast } from '../context/ToastContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Avatar, PageHeader, Tabs, EmptyState, Modal, Spinner, PostSkeleton } from '../components/ui.jsx';
 import FollowButton from '../components/FollowButton.jsx';
@@ -38,6 +39,7 @@ export default function Profile() {
   const { username } = useParams();
   const { user: me } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   const [profile, setProfile] = useState(undefined);
   const [tab, setTab] = useState('grid');
   const [conn, setConn] = useState(null);
@@ -58,11 +60,21 @@ export default function Profile() {
   const joined = new Date(profile.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   const postsCount = posts.loading ? profile.postsCount : posts.posts.length + (posts.hasMore ? 0 : 0) || profile.postsCount;
 
+  const startChat = async () => {
+    try {
+      const { data } = await api.post('/messages/conversations', { userId: profile._id });
+      navigate(`/messages/${data.conversation._id}`);
+    } catch (err) { toast.error(errMsg(err)); }
+  };
+
   const actions = isMe ? (
     <Link to="/settings" className="btn-ghost btn-sm">Edit profile</Link>
   ) : (
-    <FollowButton userId={profile._id} initial={profile.isFollowing}
-      onChange={(d) => setProfile((p) => ({ ...p, isFollowing: d.following, followersCount: d.followersCount }))} />
+    <>
+      <FollowButton userId={profile._id} initial={profile.isFollowing}
+        onChange={(d) => setProfile((p) => ({ ...p, isFollowing: d.following, followersCount: d.followersCount }))} />
+      <button className="btn-ghost btn-sm" onClick={startChat}><Send size={14} /> Message</button>
+    </>
   );
 
   return (
